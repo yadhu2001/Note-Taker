@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin - Builder</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background: #f6f7fb; color: #111; }
+
+    header {
+      padding: 16px 20px; background: #111827; color: #fff;
+      display:flex; justify-content:space-between; align-items:center; gap: 12px;
+      position: sticky; top: 0; z-index: 10;
+    }
+    header h1 { margin: 0; font-size: 16px; font-weight: 800; }
+    header .right { display:flex; gap:10px; flex-wrap: wrap; align-items:center; }
+
+    a.btn, button {
+      border: 1px solid #d1d5db; background: #fff; border-radius: 10px;
+      padding: 10px 12px; font-size: 14px; cursor: pointer; text-decoration:none; color:#111;
+    }
+    button.primary { background:#2563eb; border-color:#2563eb; color:#fff; }
+    button.danger { background:#ef4444; border-color:#ef4444; color:#fff; }
+    button.ghost { background: transparent; }
+
+    main { padding: 18px 20px; max-width: 1100px; margin: 0 auto; }
+
+    .card {
+      background:#fff; border:1px solid #e5e7eb; border-radius: 14px; overflow:hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04); margin-bottom: 16px;
+    }
+    .card .hd {
+      padding: 12px 14px; border-bottom: 1px solid #eef2f7;
+      display:flex; justify-content:space-between; align-items:center; gap: 10px;
+    }
+    .card .hd h2 { margin: 0; font-size: 14px; font-weight: 850; }
+    .card .bd { padding: 14px; }
+
+    .row { display:flex; gap: 10px; flex-wrap: wrap; align-items: end; }
+    .row > * { flex: 1; min-width: 180px; }
+
+    label { font-size: 12px; color: #374151; display:block; margin: 0 0 6px; }
+    input[type="text"], select {
+      width: 100%; padding: 10px 10px; border: 1px solid #d1d5db; border-radius: 10px;
+      background: #fff; outline: none; font-size: 14px;
+    }
+
+    .muted { color:#6b7280; font-size: 12px; }
+    .divider { height: 1px; background: #eef2f7; margin: 12px 0; }
+
+    .section-card {
+      border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden;
+      margin-bottom: 14px; background: #fff;
+    }
+    .section-head {
+      background: linear-gradient(to right, #f9fafb, #ffffff);
+      border-bottom: 1px solid #eef2f7;
+      padding: 12px 12px; display:flex; align-items:center; justify-content:space-between; gap: 12px;
+    }
+    .section-head-left { display:flex; flex-direction:column; gap: 4px; }
+    .section-title { font-weight: 900; font-size: 14px; }
+    .badge {
+      display:inline-flex; align-items:center; padding: 3px 10px; border-radius: 999px;
+      border: 1px solid #e5e7eb; background:#fff; font-size: 12px; color:#374151; width: fit-content;
+    }
+    .section-body { padding: 12px; background:#fff; }
+
+    .q-card {
+      border: 1px solid #eef2f7; border-radius: 12px; padding: 12px; background:#fff; margin-bottom: 10px;
+    }
+    .q-top { display:flex; align-items:center; justify-content:space-between; gap: 10px; margin-bottom: 10px; }
+    .pill { display:inline-flex; align-items:center; padding: 4px 10px; border-radius: 999px; background:#eef2ff; color:#3730a3; font-size: 12px; border:1px solid #e0e7ff; }
+    .section-actions, .q-actions { display:flex; gap:8px; flex-wrap: wrap; align-items:center; }
+    .smallbtn { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
+
+    .opt-row { display:flex; gap: 10px; align-items:flex-start; margin-top: 10px; }
+    .opt-row input[type="text"] { flex: 1; }
+    .opt-controls { flex: 1.1; min-width: 220px; display:flex; flex-direction:column; gap: 8px; }
+    .opt-actions { display:flex; gap: 8px; align-items:center; flex-wrap: wrap; }
+    .subopts { margin-left: 12px; padding-left: 12px; border-left: 2px solid #eef2f7; }
+    .subopt-row { display:flex; gap: 8px; align-items:center; margin-top: 8px; }
+    .subopt-row input { flex: 1; }
+
+    .empty { padding: 10px 0; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Admin Builder</h1>
+    <div class="right">
+      <a class="btn" href="user.html" target="_blank" rel="noreferrer">Open User Page</a>
+      <button id="btnSave" class="primary">Save</button>
+      <button id="btnReset" class="danger">Reset</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <div class="hd">
+        <h2>Build Sections & Questions</h2>
+        <span class="muted">No backend. Saved in browser (localStorage).</span>
+      </div>
+      <div class="bd">
+        <div class="row">
+          <div>
+            <label>Add Section</label>
+            <input id="sectionName" type="text" placeholder="e.g., Personal Details" />
+          </div>
+          <div style="flex:0.6; min-width:190px;">
+            <label>&nbsp;</label>
+            <button class="primary" id="addSectionBtn">+ Add Section</button>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div id="sectionsWrap"></div>
+
+        <p class="muted">
+          Click <b>Save</b> after changes to update the user page.
+        </p>
+      </div>
+    </section>
+  </main>
+
+<script>
+  const STORAGE_KEY = "FORM_BUILDER_V2";
+
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, attrs = {}, kids = []) => {
+    const n = document.createElement(tag);
+    for (const [k,v] of Object.entries(attrs)) {
+      if (k === "class") n.className = v;
+      else if (k.startsWith("on") && typeof v === "function") n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v);
+    }
+    for (const c of kids) n.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    return n;
+  };
+  const uid = () => Math.random().toString(16).slice(2) + Date.now().toString(16);
+
+  function defaultState(){ return { sections: [] }; }
+
+  // option.followUp: "none" | "text" | "subcheckbox"
+  // option.subOptions: [{id,text}]
+  function normalizeState(parsed){
+    parsed.sections.forEach(sec => {
+      sec.id ||= uid();
+      sec.title ||= "";
+      sec.questions ||= [];
+      sec.questions.forEach(q => {
+        q.id ||= uid();
+        q.type ||= "text";
+        q.label ||= "";
+        q.required = !!q.required;
+        q.options ||= [];
+        q.options.forEach(o => {
+          o.id ||= uid();
+          o.text ||= "";
+          o.followUp ||= "none";
+          o.subOptions ||= [];
+          o.subOptions.forEach(so => { so.id ||= uid(); so.text ||= ""; });
+        });
+      });
+    });
+  }
+
+  function loadState(){
+    try{
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return defaultState();
+      const parsed = JSON.parse(raw);
+      if(!parsed || !Array.isArray(parsed.sections)) return defaultState();
+      normalizeState(parsed);
+      return parsed;
+    }catch{
+      return defaultState();
+    }
+  }
+
+  let state = loadState();
+
+  function saveState(){
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function render(){
+    const wrap = $("#sectionsWrap");
+    wrap.innerHTML = "";
+
+    if(state.sections.length === 0){
+      wrap.appendChild(el("div", { class:"empty muted" }, ["No sections yet. Add a section above."]));
+      return;
+    }
+
+    state.sections.forEach((sec, secIndex) => {
+      const card = el("div", { class:"section-card" });
+
+      const head = el("div", { class:"section-head" }, [
+        el("div", { class:"section-head-left" }, [
+          el("div", { class:"section-title" }, [sec.title || "Untitled Section"]),
+          el("div", { class:"badge" }, [`${sec.questions.length} question(s)`])
+        ]),
+        el("div", { class:"section-actions" }, [
+          el("button", { class:"smallbtn ghost", onclick: () => moveSection(secIndex, -1) }, ["↑ Move"]),
+          el("button", { class:"smallbtn ghost", onclick: () => moveSection(secIndex, +1) }, ["↓ Move"]),
+          el("button", { class:"smallbtn danger", onclick: () => deleteSection(secIndex) }, ["Delete"])
+        ])
+      ]);
+
+      const body = el("div", { class:"section-body" });
+
+      body.appendChild(el("div", { class:"row" }, [
+        el("div", {}, [
+          el("label", {}, ["Section Title"]),
+          el("input", {
+            type:"text",
+            value: sec.title,
+            oninput: (e) => { sec.title = e.target.value; render(); }
+          })
+        ]),
+        el("div", { style:"flex:0.9; min-width:260px;" }, [
+          el("label", {}, ["Add Question Type"]),
+          (() => {
+            const s = el("select", {});
+            s.appendChild(el("option", { value:"" }, ["Choose..."]));
+            s.appendChild(el("option", { value:"text" }, ["Text"]));
+            s.appendChild(el("option", { value:"dropdown" }, ["Dropdown"]));
+            s.appendChild(el("option", { value:"checkbox" }, ["Checkbox"]));
+            s.addEventListener("change", () => {
+              if(!s.value) return;
+              addQuestion(secIndex, s.value);
+              s.value = "";
+            });
+            return s;
+          })()
+        ])
+      ]));
+
+      body.appendChild(el("div", { class:"divider" }));
+
+      if(!sec.questions.length){
+        body.appendChild(el("div", { class:"muted" }, ["No questions in this section yet."]));
+      } else {
+        sec.questions.forEach((q, qIndex) => body.appendChild(renderQuestionEditor(secIndex, qIndex, q)));
+      }
+
+      card.appendChild(head);
+      card.appendChild(body);
+      wrap.appendChild(card);
+    });
+  }
+
+  function renderQuestionEditor(secIndex, qIndex, q){
+    const box = el("div", { class:"q-card" });
+
+    const top = el("div", { class:"q-top" }, [
+      el("div", {}, [
+        el("div", { class:"pill" }, [q.type.toUpperCase()]),
+        el("div", { class:"muted", style:"margin-top:6px;" }, ["Question"])
+      ]),
+      el("div", { class:"q-actions" }, [
+        el("button", { class:"smallbtn ghost", onclick: () => moveQuestion(secIndex, qIndex, -1) }, ["↑"]),
+        el("button", { class:"smallbtn ghost", onclick: () => moveQuestion(secIndex, qIndex, +1) }, ["↓"]),
+        el("button", { class:"smallbtn danger", onclick: () => deleteQuestion(secIndex, qIndex) }, ["Delete"])
+      ])
+    ]);
+
+    const body = el("div", {}, []);
+
+    body.appendChild(el("div", { class:"row" }, [
+      el("div", {}, [
+        el("label", {}, ["Question Text"]),
+        el("input", {
+          type:"text",
+          value: q.label,
+          placeholder:"e.g., Your Name",
+          oninput: (e) => { q.label = e.target.value; }
+        })
+      ]),
+      el("div", { style:"flex:0.75; min-width:240px;" }, [
+        el("label", {}, ["Required?"]),
+        (() => {
+          const s = el("select", {});
+          s.appendChild(el("option", { value:"false" }, ["No"]));
+          s.appendChild(el("option", { value:"true" }, ["Yes"]));
+          s.value = String(!!q.required);
+          s.addEventListener("change", () => { q.required = (s.value === "true"); });
+          return s;
+        })()
+      ])
+    ]));
+
+    if(q.type !== "text"){
+      body.appendChild(el("div", { class:"divider" }));
+
+      // add option
+      body.appendChild(el("div", { class:"row" }, [
+        el("div", {}, [
+          el("label", {}, ["Add Option/Answer"]),
+          el("input", { type:"text", placeholder:"e.g., Yes / No / Others", id:`opt_${q.id}` })
+        ]),
+        el("div", { style:"flex:0.6; min-width:190px;" }, [
+          el("label", {}, ["&nbsp;"]),
+          el("button", {
+            class:"primary",
+            onclick: () => {
+              const inp = document.getElementById(`opt_${q.id}`);
+              const val = (inp.value || "").trim();
+              if(!val) return;
+
+              const isOthers = val.toLowerCase() === "others" || val.toLowerCase() === "other";
+              q.options.push({
+                id: uid(),
+                text: val,
+                followUp: isOthers ? "text" : "none",
+                subOptions: []
+              });
+
+              inp.value = "";
+              render();
+            }
+          }, ["+ Add"])
+        ])
+      ]));
+
+      if(!q.options.length){
+        body.appendChild(el("p", { class:"muted", style:"margin:10px 0 0;" }, ["No options yet."]));
+      } else {
+        // options list with follow-up config
+        q.options.forEach((o, oi) => {
+          body.appendChild(renderOptionRow(q, secIndex, qIndex, o, oi));
+        });
+      }
+    }
+
+    box.appendChild(top);
+    box.appendChild(body);
+    return box;
+  }
+
+  function renderOptionRow(q, secIndex, qIndex, o, oi){
+    const row = el("div", { class:"opt-row" });
+
+    // option text input
+    const textInput = el("input", {
+      type:"text",
+      value: o.text,
+      oninput: (e) => {
+        o.text = e.target.value;
+
+        // auto-enable text follow-up if becomes Others/Other
+        const v = (o.text || "").trim().toLowerCase();
+        if (v === "others" || v === "other") o.followUp = "text";
+
+        render();
+      }
+    });
+
+    // follow-up selector
+    const followSelect = el("select", {
+      onchange: (e) => {
+        o.followUp = e.target.value;
+        if (o.followUp !== "subcheckbox") o.subOptions = [];
+        render();
+      }
+    });
+    followSelect.appendChild(el("option", { value:"none" }, ["No follow-up"]));
+    followSelect.appendChild(el("option", { value:"text" }, ["Show text box"]));
+    followSelect.appendChild(el("option", { value:"subcheckbox" }, ["Show sub-checkboxes"]));
+    followSelect.value = o.followUp || "none";
+
+    const controls = el("div", { class:"opt-controls" }, [
+      el("div", {}, [
+        el("label", {}, ["Follow-up (when user selects this option)"]),
+        followSelect
+      ])
+    ]);
+
+    // subcheckbox editor
+    if ((o.followUp || "none") === "subcheckbox") {
+      const subWrap = el("div", { class:"subopts" }, [
+        el("div", { class:"muted" }, ["Sub-checkboxes for this option:"])
+      ]);
+
+      const addRowId = `subadd_${o.id}`;
+      subWrap.appendChild(el("div", { class:"subopt-row" }, [
+        el("input", { type:"text", placeholder:"Add sub-option", id: addRowId }),
+        el("button", {
+          class:"smallbtn primary",
+          onclick: () => {
+            const inp = document.getElementById(addRowId);
+            const v = (inp.value || "").trim();
+            if (!v) return;
+            o.subOptions = o.subOptions || [];
+            o.subOptions.push({ id: uid(), text: v });
+            inp.value = "";
+            render();
+          }
+        }, ["+ Add"])
+      ]));
+
+      if (!o.subOptions?.length) {
+        subWrap.appendChild(el("div", { class:"muted", style:"margin-top:8px;" }, ["No sub-options yet."]));
+      } else {
+        o.subOptions.forEach((so, si) => {
+          subWrap.appendChild(el("div", { class:"subopt-row" }, [
+            el("input", {
+              type:"text",
+              value: so.text,
+              oninput: (e) => { so.text = e.target.value; }
+            }),
+            el("button", {
+              class:"smallbtn danger",
+              onclick: () => { o.subOptions.splice(si, 1); render(); }
+            }, ["Remove"])
+          ]));
+        });
+      }
+
+      controls.appendChild(subWrap);
+    }
+
+    const actions = el("div", { class:"opt-actions" }, [
+      el("button", { class:"smallbtn ghost", onclick: () => moveOption(secIndex, qIndex, oi, -1) }, ["↑"]),
+      el("button", { class:"smallbtn ghost", onclick: () => moveOption(secIndex, qIndex, oi, +1) }, ["↓"]),
+      el("button", { class:"smallbtn danger", onclick: () => { q.options.splice(oi, 1); render(); } }, ["Remove"])
+    ]);
+
+    row.appendChild(textInput);
+    row.appendChild(controls);
+    row.appendChild(actions);
+    return row;
+  }
+
+  // Section actions
+  function addSection(){
+    const name = ($("#sectionName").value || "").trim();
+    if(!name) return;
+    state.sections.push({ id: uid(), title: name, questions: [] });
+    $("#sectionName").value = "";
+    render();
+  }
+  function deleteSection(i){ state.sections.splice(i,1); render(); }
+  function moveSection(i, dir){
+    const j = i + dir;
+    if(j < 0 || j >= state.sections.length) return;
+    [state.sections[i], state.sections[j]] = [state.sections[j], state.sections[i]];
+    render();
+  }
+
+  // Question actions
+  function addQuestion(secIndex, type){
+    state.sections[secIndex].questions.push({
+      id: uid(),
+      type,
+      label: type === "text" ? "New text question" : (type === "dropdown" ? "New dropdown question" : "New checkbox question"),
+      required: false,
+      options: []
+    });
+    render();
+  }
+  function deleteQuestion(secIndex, qIndex){ state.sections[secIndex].questions.splice(qIndex,1); render(); }
+  function moveQuestion(secIndex, qIndex, dir){
+    const qs = state.sections[secIndex].questions;
+    const j = qIndex + dir;
+    if(j < 0 || j >= qs.length) return;
+    [qs[qIndex], qs[j]] = [qs[j], qs[qIndex]];
+    render();
+  }
+  function moveOption(secIndex, qIndex, optIndex, dir){
+    const opts = state.sections[secIndex].questions[qIndex].options;
+    const j = optIndex + dir;
+    if(j < 0 || j >= opts.length) return;
+    [opts[optIndex], opts[j]] = [opts[j], opts[optIndex]];
+    render();
+  }
+
+  // Buttons
+  $("#addSectionBtn").addEventListener("click", addSection);
+  $("#sectionName").addEventListener("keydown", (e)=>{ if(e.key==="Enter") addSection(); });
+
+  $("#btnSave").addEventListener("click", ()=>{
+    saveState();
+    alert("Saved! User page updated.");
+  });
+
+  $("#btnReset").addEventListener("click", ()=>{
+    if(!confirm("Reset everything?")) return;
+    state = defaultState();
+    saveState();
+    render();
+  });
+
+  // init
+  render();
+</script>
+</body>
+</html>

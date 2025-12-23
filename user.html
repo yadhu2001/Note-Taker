@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>User Form</title>
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    body { margin: 0; background: #f6f7fb; color: #111; }
+    header { padding: 16px 20px; background: #111827; color: #fff; }
+    header h1 { margin: 0; font-size: 16px; font-weight: 800; }
+
+    main { padding: 18px 20px; max-width: 900px; margin: 0 auto; }
+    .card { background:#fff; border:1px solid #e5e7eb; border-radius: 14px; overflow:hidden; box-shadow: 0 1px 2px rgba(0,0,0,.04); margin-bottom: 14px;}
+    .card .hd { padding: 12px 14px; border-bottom: 1px solid #eef2f7; display:flex; justify-content:space-between; align-items:center; gap: 10px; }
+    .card .hd h2 { margin: 0; font-size: 14px; font-weight: 850; }
+    .card .bd { padding: 14px; }
+
+    .muted { color:#6b7280; font-size: 12px; }
+    .user-sec { border: 1px dashed #d1d5db; border-radius: 12px; padding: 12px; margin-bottom: 12px; background:#fafafa; }
+    .user-sec-title { font-weight: 900; margin-bottom: 10px; }
+    .user-q { margin-bottom: 14px; }
+    .user-q label.q { font-size: 13px; color:#111827; margin-bottom: 6px; font-weight: 650; display:block; }
+
+    input[type="text"], select {
+      width: 100%; padding: 10px 10px; border: 1px solid #d1d5db; border-radius: 10px;
+      background: #fff; outline: none; font-size: 14px;
+    }
+
+    .checklist { display:flex; flex-direction:column; gap:10px; }
+    .checkitem { display:flex; gap:10px; align-items:flex-start; }
+    .checkitem label { margin: 0; font-weight: 500; display:inline; }
+    .follow { margin-top: 8px; margin-left: 28px; padding-left: 12px; border-left: 2px solid #eef2f7; display:flex; flex-direction:column; gap:10px; }
+
+    .subchecks { display:flex; flex-direction:column; gap:8px; }
+    .subchecks .subitem { display:flex; gap:10px; align-items:center; }
+
+    .actions { display:flex; gap:10px; flex-wrap: wrap; }
+    button {
+      border: 1px solid #d1d5db; background: #fff; border-radius: 10px;
+      padding: 10px 12px; font-size: 14px; cursor: pointer;
+    }
+    button.primary { background:#2563eb; border-color:#2563eb; color:#fff; }
+    button.danger { background:#ef4444; border-color:#ef4444; color:#fff; }
+    button.ghost { background: transparent; }
+    .error { color:#b91c1c; font-size: 12px; margin-top: 6px; }
+
+    .preview-row { padding: 10px 0; border-bottom: 1px solid #eef2f7; }
+    .preview-row:last-child { border-bottom: 0; }
+    .qname { font-weight: 750; margin-bottom: 6px; }
+    .ans { color:#111827; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 18px;
+      transform: translateX(-50%);
+      background: #111827;
+      color: #fff;
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      box-shadow: 0 8px 20px rgba(0,0,0,.16);
+      display:none;
+      z-index: 99;
+      max-width: calc(100% - 24px);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>User Form</h1>
+  </header>
+
+  <main>
+    <section class="card" id="formCard">
+      <div class="hd">
+        <h2>Fill the form</h2>
+        <span class="muted">Submit to preview your answers</span>
+      </div>
+      <div class="bd">
+        <form id="formWrap"></form>
+        <div class="actions" style="margin-top:12px;">
+          <button class="primary" id="submitBtn" type="button">Submit</button>
+          <button class="danger" id="resetBtn" type="button">Reset</button>
+        </div>
+        <div id="globalError" class="error" style="display:none;"></div>
+      </div>
+    </section>
+
+    <section class="card" id="previewCard" style="display:none;">
+      <div class="hd">
+        <h2>Preview</h2>
+        <span class="muted">All questions & selected answers</span>
+      </div>
+      <div class="bd">
+        <div id="previewWrap"></div>
+        <div class="actions" style="margin-top:12px;">
+          <button class="primary" id="copyBtn" type="button">Copy</button>
+          <button class="danger" id="resetBtn2" type="button">Reset</button>
+          <!-- <button class="ghost" id="backBtn" type="button">Back to edit</button> -->
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+<script>
+  const STORAGE_KEY = "FORM_BUILDER_V2";
+
+  const $ = (s) => document.querySelector(s);
+  const el = (tag, attrs = {}, kids = []) => {
+    const n = document.createElement(tag);
+    for (const [k,v] of Object.entries(attrs)) {
+      if (k === "class") n.className = v;
+      else if (k === "html") n.innerHTML = v;
+      else if (k.startsWith("on") && typeof v === "function") n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v);
+    }
+    for (const c of kids) n.appendChild(typeof c === "string" ? document.createTextNode(c) : c);
+    return n;
+  };
+
+  function toast(msg) {
+    const t = $("#toast");
+    t.textContent = msg;
+    t.style.display = "block";
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => { t.style.display = "none"; }, 1600);
+  }
+
+  function loadState() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { sections: [] };
+      const parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.sections)) return { sections: [] };
+      return parsed;
+    } catch {
+      return { sections: [] };
+    }
+  }
+
+  let state = loadState();
+
+  function fieldName(q) { return "q_" + (q.id || Math.random().toString(16).slice(2)); }
+  function optFollowId(q, optId) { return `${fieldName(q)}__f_${optId}`; }
+  function optSubName(q, optId) { return `${fieldName(q)}__sub_${optId}`; }
+
+  function renderSubCheckboxes(q, o) {
+    const wrap = el("div", { class:"subchecks" });
+    (o.subOptions || []).forEach((so, idx) => {
+      const sid = `${optSubName(q, o.id)}_${idx}`;
+      wrap.appendChild(el("div", { class:"subitem" }, [
+        el("input", { type:"checkbox", id: sid, name: optSubName(q, o.id), value: so.text || "" }),
+        el("label", { for: sid, style:"margin:0; font-weight:500; display:inline;" }, [so.text || "Sub-option"])
+      ]));
+    });
+    if (!(o.subOptions || []).length) {
+      wrap.appendChild(el("div", { class:"muted" }, ["(No sub-options)"]));
+    }
+    return wrap;
+  }
+
+  function renderFollowUpAreaForDropdown(q, selectedOpt) {
+    const follow = el("div", { class:"follow" });
+    if (!selectedOpt || !selectedOpt.followUp || selectedOpt.followUp === "none") return null;
+
+    if (selectedOpt.followUp === "text") {
+      follow.appendChild(el("label", { class:"q" }, ["Please specify:"]));
+      follow.appendChild(el("input", { type:"text", id: optFollowId(q, selectedOpt.id), placeholder:"Type here..." }));
+      return follow;
+    }
+
+    if (selectedOpt.followUp === "subcheckbox") {
+      follow.appendChild(el("div", { class:"muted" }, ["Select all that apply:"]));
+      follow.appendChild(renderSubCheckboxes(q, selectedOpt));
+      return follow;
+    }
+
+    return null;
+  }
+
+  function renderForm() {
+    state = loadState();
+    const wrap = $("#formWrap");
+    wrap.innerHTML = "";
+
+    if (!state.sections.length) {
+      wrap.appendChild(el("p", { class:"muted" }, ["No sections/questions yet. Ask admin to add them."]));
+      return;
+    }
+
+    state.sections.forEach((sec) => {
+      const secNode = el("div", { class:"user-sec" }, [
+        el("div", { class:"user-sec-title" }, [sec.title || "Untitled Section"])
+      ]);
+
+      (sec.questions || []).forEach((q) => {
+        const qNode = el("div", { class:"user-q" });
+        const name = fieldName(q);
+
+        const labelText = (q.label || "Untitled Question") + (q.required ? " *" : "");
+        qNode.appendChild(el("label", { class:"q", for:name }, [labelText]));
+
+        qNode.appendChild(el("div", { class:"error", id: name + "_err", style:"display:none;" }, ["This field is required."]));
+
+        if (q.type === "text") {
+          qNode.appendChild(el("input", { type:"text", id:name, name:name }));
+        }
+
+        if (q.type === "dropdown") {
+          const sel = el("select", { id:name, name:name });
+          sel.appendChild(el("option", { value:"" }, ["Select..."]));
+          (q.options || []).forEach((o) => sel.appendChild(el("option", { value:o.id }, [o.text || "Option"])));
+
+          const followMount = el("div", { id: name + "_follow_mount" });
+
+          sel.addEventListener("change", () => {
+            followMount.innerHTML = "";
+            const opt = (q.options || []).find(x => String(x.id) === String(sel.value));
+            const follow = renderFollowUpAreaForDropdown(q, opt);
+            if (follow) followMount.appendChild(follow);
+          });
+
+          qNode.appendChild(sel);
+          qNode.appendChild(followMount);
+        }
+
+        if (q.type === "checkbox") {
+          const list = el("div", { class:"checklist" });
+
+          (q.options || []).forEach((o, idx) => {
+            const cid = `${name}_c_${idx}`;
+            const followMountId = `${cid}_follow`;
+
+            const checkbox = el("input", { type:"checkbox", id: cid, name: name, value: o.id });
+            const followMount = el("div", { id: followMountId });
+
+            checkbox.addEventListener("change", () => {
+              followMount.innerHTML = "";
+              if (!checkbox.checked) return;
+
+              if (o.followUp === "text") {
+                const follow = el("div", { class:"follow" }, [
+                  el("label", { class:"q" }, ["Please specify:"]),
+                  el("input", { type:"text", id: optFollowId(q, o.id), placeholder:"Type here..." })
+                ]);
+                followMount.appendChild(follow);
+              } else if (o.followUp === "subcheckbox") {
+                const follow = el("div", { class:"follow" }, [
+                  el("div", { class:"muted" }, ["Select all that apply:"]),
+                  renderSubCheckboxes(q, o)
+                ]);
+                followMount.appendChild(follow);
+              }
+            });
+
+            list.appendChild(el("div", { class:"checkitem" }, [
+              checkbox,
+              el("div", {}, [
+                el("label", { for: cid }, [o.text || "Option"]),
+                followMount
+              ])
+            ]));
+          });
+
+          if (!(q.options || []).length) list.appendChild(el("div", { class:"muted" }, ["(No options added yet)"]));
+          qNode.appendChild(list);
+        }
+
+        secNode.appendChild(qNode);
+      });
+
+      wrap.appendChild(secNode);
+    });
+  }
+
+  function collectSubCheckboxValues(name) {
+    const boxes = document.querySelectorAll(`input[type="checkbox"][name="${CSS.escape(name)}"]`);
+    const selected = [];
+    boxes.forEach(b => { if (b.checked) selected.push(b.value); });
+    return selected;
+  }
+
+  function validateAndCollect() {
+    const errors = [];
+    const answers = [];
+
+    document.querySelectorAll(".error").forEach(d => {
+      if (d.id.endsWith("_err")) d.style.display = "none";
+    });
+    $("#globalError").style.display = "none";
+
+    for (const sec of state.sections) {
+      for (const q of (sec.questions || [])) {
+        const name = fieldName(q);
+        let mainAnswer = null;
+        let followDetails = [];
+
+        if (q.type === "text") {
+          const inp = document.getElementById(name);
+          mainAnswer = (inp?.value || "").trim();
+          if (q.required && !mainAnswer) errors.push(name);
+        }
+
+        if (q.type === "dropdown") {
+          const sel = document.getElementById(name);
+          const opt = (q.options || []).find(o => String(o.id) === String(sel?.value));
+          mainAnswer = opt ? (opt.text || "") : "";
+
+          if (q.required && !opt) errors.push(name);
+
+          if (opt && opt.followUp === "text") {
+            const f = document.getElementById(optFollowId(q, opt.id));
+            const v = (f?.value || "").trim();
+            followDetails.push({ type:"text", value: v });
+          }
+          if (opt && opt.followUp === "subcheckbox") {
+            const subName = optSubName(q, opt.id);
+            const v = collectSubCheckboxValues(subName);
+            followDetails.push({ type:"subcheckbox", value: v });
+          }
+        }
+
+        if (q.type === "checkbox") {
+          const chosenOptIds = [];
+          const boxes = document.querySelectorAll(`input[type="checkbox"][name="${CSS.escape(name)}"]`);
+          boxes.forEach(b => { if (b.checked) chosenOptIds.push(b.value); });
+
+          const chosenOpts = (q.options || []).filter(o => chosenOptIds.includes(String(o.id)));
+          mainAnswer = chosenOpts.map(o => o.text || "Option");
+
+          if (q.required && chosenOpts.length === 0) errors.push(name);
+
+          chosenOpts.forEach(opt => {
+            if (opt.followUp === "text") {
+              const f = document.getElementById(optFollowId(q, opt.id));
+              const v = (f?.value || "").trim();
+              followDetails.push({ type:"text", value: v });
+            }
+            if (opt.followUp === "subcheckbox") {
+              const subName = optSubName(q, opt.id);
+              const v = collectSubCheckboxValues(subName);
+              followDetails.push({ type:"subcheckbox", value: v });
+            }
+          });
+        }
+
+        answers.push({
+          section: sec.title || "Untitled Section",
+          question: q.label || "Untitled Question",
+          type: q.type,
+          answer: mainAnswer,
+          follow: followDetails
+        });
+      }
+    }
+
+    if (errors.length) {
+      errors.forEach(name => {
+        const err = document.getElementById(name + "_err");
+        if (err) err.style.display = "";
+      });
+      $("#globalError").textContent = "Please fill all required fields marked with *.";
+      $("#globalError").style.display = "";
+
+      const first = document.getElementById(errors[0]);
+      first?.scrollIntoView({ behavior:"smooth", block:"center" });
+      first?.focus?.();
+      return { ok:false };
+    }
+
+    return { ok:true, answers };
+  }
+
+  function buildCopyText(answers) {
+    const bySection = new Map();
+    for (const a of answers) {
+      if (!bySection.has(a.section)) bySection.set(a.section, []);
+      bySection.get(a.section).push(a);
+    }
+
+    const lines = [];
+    for (const [secTitle, items] of bySection.entries()) {
+      lines.push(secTitle);
+      lines.push("-".repeat(Math.min(40, secTitle.length + 6)));
+
+      items.forEach(item => {
+        let ansText =
+          item.type === "checkbox"
+            ? (item.answer.length ? item.answer.join(", ") : "(none)")
+            : (item.answer ? item.answer : "(empty)");
+
+        const extras = [];
+        (item.follow || []).forEach(f => {
+          if (f.type === "text") {
+            const v = (f.value || "").trim();
+            if (v) extras.push(v);
+          } else if (f.type === "subcheckbox") {
+            const v = (f.value && f.value.length) ? f.value.join(", ") : "";
+            if (v) extras.push(v);
+          }
+        });
+
+        if (extras.length) ansText = ansText + ", " + extras.join(", ");
+        lines.push(`${item.question}: ${ansText}`);
+      });
+
+      lines.push(""); // blank line between sections
+    }
+    return lines.join("\n");
+  }
+
+  // ✅ CLEAN PREVIEW + store last preview for copy
+  let lastPreviewAnswers = null;
+
+  function showPreview(answers) {
+    lastPreviewAnswers = answers;
+
+    $("#formCard").style.display = "none";
+    $("#previewCard").style.display = "";
+
+    const wrap = $("#previewWrap");
+    wrap.innerHTML = "";
+
+    const bySection = new Map();
+    for (const a of answers) {
+      if (!bySection.has(a.section)) bySection.set(a.section, []);
+      bySection.get(a.section).push(a);
+    }
+
+    for (const [secTitle, items] of bySection.entries()) {
+      const secBlock = el("div", { class:"user-sec" }, [
+        el("div", { class:"user-sec-title" }, [secTitle])
+      ]);
+
+      items.forEach(item => {
+        let ansText =
+          item.type === "checkbox"
+            ? (item.answer.length ? item.answer.join(", ") : "(none)")
+            : (item.answer ? item.answer : "(empty)");
+
+        const extras = [];
+        (item.follow || []).forEach(f => {
+          if (f.type === "text") {
+            const v = (f.value || "").trim();
+            if (v) extras.push(v);
+          } else if (f.type === "subcheckbox") {
+            const v = (f.value && f.value.length) ? f.value.join(", ") : "";
+            if (v) extras.push(v);
+          }
+        });
+
+        if (extras.length) ansText = ansText + ", " + extras.join(", ");
+
+        secBlock.appendChild(el("div", { class:"preview-row" }, [
+          el("div", { class:"qname" }, [item.question]),
+          el("div", { class:"ans" }, [ansText])
+        ]));
+      });
+
+      wrap.appendChild(secBlock);
+    }
+  }
+
+  function backToEdit() {
+    $("#previewCard").style.display = "none";
+    $("#formCard").style.display = "";
+  }
+
+  function resetAll() {
+    // This resets only the user's answers (not admin template in localStorage)
+    $("#formWrap")?.reset?.(); // may not clear dynamic followups reliably
+    // safest: reload the page so everything clears & starts fresh
+    location.reload();
+  }
+
+  async function copyPreview() {
+    if (!lastPreviewAnswers) return;
+    const text = buildCopyText(lastPreviewAnswers);
+
+    try {
+      await navigator.clipboard.writeText(text);
+      toast("Copied!");
+    } catch {
+      // fallback
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.left = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      ta.remove();
+      toast("Copied!");
+    }
+  }
+
+  $("#submitBtn").addEventListener("click", () => {
+    state = loadState();
+    const res = validateAndCollect();
+    if (res.ok) showPreview(res.answers);
+  });
+
+  $("#backBtn").addEventListener("click", backToEdit);
+
+  $("#resetBtn").addEventListener("click", resetAll);
+  $("#resetBtn2").addEventListener("click", resetAll);
+
+  $("#copyBtn").addEventListener("click", copyPreview);
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === STORAGE_KEY) {
+      renderForm();
+      backToEdit();
+    }
+  });
+
+  renderForm();
+</script>
+</body>
+</html>
