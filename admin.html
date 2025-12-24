@@ -37,6 +37,24 @@
     button.danger { background:#ef4444; border-color:#ef4444; color:#fff; }
     button.ghost { background: transparent; }
 
+    /* ✅ Fix: buttons inside dark header should be readable */
+    header button.ghost, header a.btn.ghost, header a.btn, header button {
+      color: #fff;
+      border-color: rgba(255,255,255,.55);
+      background: transparent;
+    }
+    header button.primary {
+      background:#2563eb;
+      border-color:#2563eb;
+    }
+    header button.danger {
+      background:#ef4444;
+      border-color:#ef4444;
+    }
+    header a.btn:hover, header button.ghost:hover {
+      background: rgba(255,255,255,.12);
+    }
+
     main { padding: 18px 20px; max-width: 1100px; margin: 0 auto; }
 
     .card {
@@ -132,6 +150,7 @@
       <a class="btn" href="/user" target="_blank" rel="noreferrer">Open User Page</a>
       <button id="btnLoad" class="ghost">Load Live</button>
       <button id="btnSave" class="primary">Save Live</button>
+      <button id="btnChangePw" class="ghost">Change Password</button>
       <button id="btnReset" class="danger">Reset Builder</button>
     </div>
   </header>
@@ -140,7 +159,7 @@
     <section class="card">
       <div class="hd">
         <h2>Build Sections & Questions</h2>
-        <span class="muted">Saved globally (Vercel). User answers are not stored.</span>
+        <span class="muted">Password = your Vercel env var <b>ADMIN_TOKEN</b>.</span>
       </div>
       <div class="bd">
         <div class="row">
@@ -155,7 +174,6 @@
         </div>
 
         <div class="divider"></div>
-
         <div id="sectionsWrap"></div>
 
         <p class="muted">
@@ -184,8 +202,8 @@
   function smartDefaultFollowUp(optionText) {
     const t = (optionText || "").trim().toLowerCase();
     if (!t) return "none";
-    if (t.includes("other")) return "text"; // Others -> text box
-    return "none"; // yes/no stays none unless admin changes it
+    if (t.includes("other")) return "text";
+    return "none";
   }
 
   async function apiLoad() {
@@ -195,17 +213,18 @@
     return normalizeState(data);
   }
 
-  async function getAdminToken() {
+  async function getAdminToken(forceNew=false) {
+    if (forceNew) sessionStorage.removeItem("ADMIN_TOKEN");
     let t = sessionStorage.getItem("ADMIN_TOKEN");
     if (!t) {
-      t = prompt("Enter admin password:");
+      t = prompt("Enter admin password (Vercel env ADMIN_TOKEN):");
       if (t) sessionStorage.setItem("ADMIN_TOKEN", t);
     }
     return t || "";
   }
 
   async function apiSave(state) {
-    const token = await getAdminToken();
+    const token = await getAdminToken(false);
     if (!token) throw new Error("Admin password required");
 
     const r = await fetch("/api/form", {
@@ -218,7 +237,13 @@
     });
 
     const data = await r.json().catch(() => ({}));
-    if (!r.ok) throw new Error(data.message || "Save failed");
+    if (!r.ok) {
+      // clearer message
+      if (r.status === 401) {
+        throw new Error("Wrong password OR ADMIN_TOKEN not set in Vercel.");
+      }
+      throw new Error(data.message || "Save failed");
+    }
     return data;
   }
 
@@ -240,7 +265,7 @@
         q.options.forEach(o => {
           o.id ||= uid();
           o.text ||= "";
-          o.followUp = o.followUp || "none"; // none|text|subcheckbox
+          o.followUp = o.followUp || "none";
           o.subOptions = Array.isArray(o.subOptions) ? o.subOptions : [];
           o.subOptions.forEach(so => { so.text ||= ""; });
         });
@@ -270,8 +295,8 @@
           el("div", { class:"badge" }, [`${sec.questions.length} question(s)`])
         ]),
         el("div", { class:"section-actions" }, [
-          el("button", { class:"smallbtn ghost", onclick: () => moveSection(secIndex, -1) }, ["↑ Move"]),
-          el("button", { class:"smallbtn ghost", onclick: () => moveSection(secIndex, +1) }, ["↓ Move"]),
+          el("button", { class:"smallbtn", onclick: () => moveSection(secIndex, -1) }, ["↑ Move"]),
+          el("button", { class:"smallbtn", onclick: () => moveSection(secIndex, +1) }, ["↓ Move"]),
           el("button", { class:"smallbtn danger", onclick: () => deleteSection(secIndex) }, ["Delete"])
         ])
       ]);
@@ -328,8 +353,8 @@
         el("div", { class:"muted", style:"margin-top:6px;" }, ["Question"])
       ]),
       el("div", { class:"q-actions" }, [
-        el("button", { class:"smallbtn ghost", onclick: () => moveQuestion(secIndex, qIndex, -1) }, ["↑"]),
-        el("button", { class:"smallbtn ghost", onclick: () => moveQuestion(secIndex, qIndex, +1) }, ["↓"]),
+        el("button", { class:"smallbtn", onclick: () => moveQuestion(secIndex, qIndex, -1) }, ["↑"]),
+        el("button", { class:"smallbtn", onclick: () => moveQuestion(secIndex, qIndex, +1) }, ["↓"]),
         el("button", { class:"smallbtn danger", onclick: () => deleteQuestion(secIndex, qIndex) }, ["Delete"])
       ])
     ]);
@@ -362,7 +387,6 @@
     if(q.type !== "text"){
       body.appendChild(el("div", { class:"divider" }));
 
-      // add option
       body.appendChild(el("div", { class:"row" }, [
         el("div", {}, [
           el("label", {}, ["Add Option/Answer"]),
@@ -395,14 +419,12 @@
         q.options.forEach((o, oi) => {
           const optWrap = el("div", { class:"opt-row" });
 
-          // option text input
           const textInp = el("input", {
             type:"text",
             value: o.text,
             oninput:(e)=>{ o.text = e.target.value; }
           });
 
-          // follow-up selector
           const followSel = el("select", {});
           followSel.appendChild(el("option", { value:"none" }, ["No follow-up"]));
           followSel.appendChild(el("option", { value:"text" }, ["Text box"]));
@@ -410,16 +432,13 @@
           followSel.value = o.followUp || "none";
           followSel.addEventListener("change", () => {
             o.followUp = followSel.value;
-            if (o.followUp !== "subcheckbox") {
-              // keep suboptions but they won't show in user unless selected
-            }
             render();
           });
 
           const tools = el("div", { class:"opt-tools" }, [
             followSel,
-            el("button", { class:"smallbtn ghost", onclick: () => moveOption(secIndex, qIndex, oi, -1) }, ["↑"]),
-            el("button", { class:"smallbtn ghost", onclick: () => moveOption(secIndex, qIndex, oi, +1) }, ["↓"]),
+            el("button", { class:"smallbtn", onclick: () => moveOption(secIndex, qIndex, oi, -1) }, ["↑"]),
+            el("button", { class:"smallbtn", onclick: () => moveOption(secIndex, qIndex, oi, +1) }, ["↓"]),
             el("button", { class:"smallbtn danger", onclick: () => { q.options.splice(oi, 1); render(); } }, ["Remove"])
           ]);
 
@@ -429,18 +448,15 @@
           const container = el("div", {});
           container.appendChild(optWrap);
 
-          // subcheckbox editor (only when selected)
           if ((o.followUp || "none") === "subcheckbox") {
             const subBox = el("div", { class:"subbox" });
-
             subBox.appendChild(el("div", { class:"muted" }, ["Sub-checkbox options (user will tick these):"]));
 
-            // add suboption row
             const subAddId = `subadd_${q.id}_${o.id}`;
             subBox.appendChild(el("div", { class:"row", style:"margin-top:10px;" }, [
               el("div", {}, [
                 el("label", {}, ["Add Sub-option"]),
-                el("input", { id: subAddId, type:"text", placeholder:"e.g., Admin / HR / Finance" })
+                el("input", { id: subAddId, type:"text", placeholder:"e.g., HR / Admin / Finance" })
               ]),
               el("div", { style:"flex:0.6; min-width:190px;" }, [
                 el("label", {}, ["&nbsp;"]),
@@ -459,7 +475,6 @@
               ])
             ]));
 
-            // list suboptions
             if (!o.subOptions || !o.subOptions.length) {
               subBox.appendChild(el("div", { class:"muted", style:"margin-top:8px;" }, ["No sub-options yet."]));
             } else {
@@ -488,7 +503,6 @@
     return box;
   }
 
-  // Section actions
   function addSection(){
     const name = ($("#sectionName").value || "").trim();
     if(!name) return;
@@ -504,7 +518,6 @@
     render();
   }
 
-  // Question actions
   function addQuestion(secIndex, type){
     state.sections[secIndex].questions.push({
       id: uid(),
@@ -531,7 +544,6 @@
     render();
   }
 
-  // Buttons
   $("#addSectionBtn").addEventListener("click", addSection);
   $("#sectionName").addEventListener("keydown", (e)=>{ if(e.key==="Enter") addSection(); });
 
@@ -554,19 +566,20 @@
     }
   });
 
+  $("#btnChangePw").addEventListener("click", async ()=> {
+    await getAdminToken(true); // forces prompt
+    alert("Password updated for this tab.");
+  });
+
   $("#btnReset").addEventListener("click", ()=> {
-    if(!confirm("Reset builder? (This clears your current builder state. It will NOT affect live until you Save Live)")) return;
+    if(!confirm("Reset builder? (Clears current builder state; does NOT change live unless you Save Live)")) return;
     state = defaultState();
     render();
   });
 
-  // init: load live on open
   (async function init(){
-    try {
-      state = await apiLoad();
-    } catch {
-      state = defaultState();
-    }
+    try { state = await apiLoad(); }
+    catch { state = defaultState(); }
     render();
   })();
 </script>
