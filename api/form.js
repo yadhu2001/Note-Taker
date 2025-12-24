@@ -94,3 +94,6 @@ export default async function handler(req, res) {
 
   return sendJson(res, 405, { ok: false, message: "Method Not Allowed" });
 }
+
+
+// Thank You
