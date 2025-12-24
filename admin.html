@@ -147,10 +147,10 @@
   <header>
     <h1>Admin Builder</h1>
     <div class="right">
-      <a class="btn" href="/user" target="_blank" rel="noreferrer">Open User Page</a>
-      <button id="btnLoad" class="ghost">Load Live</button>
+      <a class="btn" href="/user.html" target="_blank" rel="noreferrer">Open User Page</a>
+      <!-- <button id="btnLoad" class="ghost">Load Live</button> -->
       <button id="btnSave" class="primary">Save Live</button>
-      <button id="btnReset" class="danger">Reset Builder</button>
+      <!-- <button id="btnReset" class="danger">Reset Builder</button> -->
     </div>
   </header>
 
@@ -525,15 +525,7 @@
   $("#addSectionBtn").addEventListener("click", addSection);
   $("#sectionName").addEventListener("keydown", (e)=>{ if(e.key==="Enter") addSection(); });
 
-  $("#btnLoad").addEventListener("click", async ()=> {
-    try {
-      state = await apiLoad();
-      render();
-      alert("Loaded Live form!");
-    } catch {
-      alert("Load failed. Check deployment / API.");
-    }
-  });
+
 
   $("#btnSave").addEventListener("click", async ()=> {
     try {
@@ -544,11 +536,7 @@
     }
   });
 
-  $("#btnReset").addEventListener("click", ()=> {
-    if(!confirm("Reset builder? (Clears current builder state; does NOT change live unless you Save Live)")) return;
-    state = defaultState();
-    render();
-  });
+
 
   (async function init(){
     try { state = await apiLoad(); }
