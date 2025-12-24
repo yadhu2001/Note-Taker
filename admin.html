@@ -9,16 +9,29 @@
     body { margin: 0; background: #f6f7fb; color: #111; }
 
     header {
-      padding: 16px 20px; background: #111827; color: #fff;
-      display:flex; justify-content:space-between; align-items:center; gap: 12px;
-      position: sticky; top: 0; z-index: 10;
+      padding: 16px 20px;
+      background: #111827;
+      color: #fff;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
     }
     header h1 { margin: 0; font-size: 16px; font-weight: 800; }
     header .right { display:flex; gap:10px; flex-wrap: wrap; align-items:center; }
 
     a.btn, button {
-      border: 1px solid #d1d5db; background: #fff; border-radius: 10px;
-      padding: 10px 12px; font-size: 14px; cursor: pointer; text-decoration:none; color:#111;
+      border: 1px solid #d1d5db;
+      background: #fff;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      text-decoration:none;
+      color:#111;
     }
     button.primary { background:#2563eb; border-color:#2563eb; color:#fff; }
     button.danger { background:#ef4444; border-color:#ef4444; color:#fff; }
@@ -27,12 +40,20 @@
     main { padding: 18px 20px; max-width: 1100px; margin: 0 auto; }
 
     .card {
-      background:#fff; border:1px solid #e5e7eb; border-radius: 14px; overflow:hidden;
-      box-shadow: 0 1px 2px rgba(0,0,0,.04); margin-bottom: 16px;
+      background:#fff;
+      border:1px solid #e5e7eb;
+      border-radius: 14px;
+      overflow:hidden;
+      box-shadow: 0 1px 2px rgba(0,0,0,.04);
+      margin-bottom: 16px;
     }
     .card .hd {
-      padding: 12px 14px; border-bottom: 1px solid #eef2f7;
-      display:flex; justify-content:space-between; align-items:center; gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid #eef2f7;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
     }
     .card .hd h2 { margin: 0; font-size: 14px; font-weight: 850; }
     .card .bd { padding: 14px; }
@@ -42,56 +63,76 @@
 
     label { font-size: 12px; color: #374151; display:block; margin: 0 0 6px; }
     input[type="text"], select {
-      width: 100%; padding: 10px 10px; border: 1px solid #d1d5db; border-radius: 10px;
-      background: #fff; outline: none; font-size: 14px;
+      width: 100%;
+      padding: 10px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      background: #fff;
+      outline: none;
+      font-size: 14px;
     }
 
     .muted { color:#6b7280; font-size: 12px; }
     .divider { height: 1px; background: #eef2f7; margin: 12px 0; }
 
     .section-card {
-      border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden;
-      margin-bottom: 14px; background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 14px;
+      background: #fff;
     }
     .section-head {
       background: linear-gradient(to right, #f9fafb, #ffffff);
       border-bottom: 1px solid #eef2f7;
-      padding: 12px 12px; display:flex; align-items:center; justify-content:space-between; gap: 12px;
+      padding: 12px 12px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
     }
     .section-head-left { display:flex; flex-direction:column; gap: 4px; }
     .section-title { font-weight: 900; font-size: 14px; }
-    .badge {
-      display:inline-flex; align-items:center; padding: 3px 10px; border-radius: 999px;
-      border: 1px solid #e5e7eb; background:#fff; font-size: 12px; color:#374151; width: fit-content;
-    }
+    .badge { display:inline-flex; align-items:center; padding: 3px 10px; border-radius: 999px; border: 1px solid #e5e7eb; background:#fff; font-size: 12px; color:#374151; width: fit-content; }
+
     .section-body { padding: 12px; background:#fff; }
 
     .q-card {
-      border: 1px solid #eef2f7; border-radius: 12px; padding: 12px; background:#fff; margin-bottom: 10px;
+      border: 1px solid #eef2f7;
+      border-radius: 12px;
+      padding: 12px;
+      background:#fff;
+      margin-bottom: 10px;
     }
     .q-top { display:flex; align-items:center; justify-content:space-between; gap: 10px; margin-bottom: 10px; }
     .pill { display:inline-flex; align-items:center; padding: 4px 10px; border-radius: 999px; background:#eef2ff; color:#3730a3; font-size: 12px; border:1px solid #e0e7ff; }
+
     .section-actions, .q-actions { display:flex; gap:8px; flex-wrap: wrap; align-items:center; }
     .smallbtn { padding: 8px 10px; font-size: 13px; border-radius: 10px; }
 
-    .opt-row { display:flex; gap: 10px; align-items:flex-start; margin-top: 10px; }
-    .opt-row input[type="text"] { flex: 1; }
-    .opt-controls { flex: 1.1; min-width: 220px; display:flex; flex-direction:column; gap: 8px; }
-    .opt-actions { display:flex; gap: 8px; align-items:center; flex-wrap: wrap; }
-    .subopts { margin-left: 12px; padding-left: 12px; border-left: 2px solid #eef2f7; }
-    .subopt-row { display:flex; gap: 8px; align-items:center; margin-top: 8px; }
-    .subopt-row input { flex: 1; }
+    .opt-row { display:flex; gap: 10px; align-items:flex-start; margin-top: 8px; }
+    .opt-row input { flex: 1; }
+    .opt-tools { display:flex; gap:8px; flex-wrap: wrap; align-items:center; }
 
-    .empty { padding: 10px 0; }
+    .subbox {
+      margin-top: 10px;
+      padding: 10px;
+      border: 1px solid #eef2f7;
+      border-radius: 12px;
+      background: #fafafa;
+    }
+    .subopt-row { display:flex; gap:10px; align-items:center; margin-top:8px; }
+    .subopt-row input { flex: 1; }
   </style>
 </head>
 <body>
   <header>
     <h1>Admin Builder</h1>
     <div class="right">
-      <a class="btn" href="user.html" target="_blank" rel="noreferrer">Open User Page</a>
-      <button id="btnSave" class="primary">Save</button>
-      <button id="btnReset" class="danger">Reset</button>
+      <a class="btn" href="/user" target="_blank" rel="noreferrer">Open User Page</a>
+      <button id="btnLoad" class="ghost">Load Live</button>
+      <button id="btnSave" class="primary">Save Live</button>
+      <button id="btnReset" class="danger">Reset Builder</button>
     </div>
   </header>
 
@@ -99,7 +140,7 @@
     <section class="card">
       <div class="hd">
         <h2>Build Sections & Questions</h2>
-        <span class="muted">No backend. Saved in browser (localStorage).</span>
+        <span class="muted">Saved globally (Vercel). User answers are not stored.</span>
       </div>
       <div class="bd">
         <div class="row">
@@ -118,15 +159,13 @@
         <div id="sectionsWrap"></div>
 
         <p class="muted">
-          Click <b>Save</b> after changes to update the user page.
+          Use <b>Save Live</b> so everyone can see the updated questions.
         </p>
       </div>
     </section>
   </main>
 
 <script>
-  const STORAGE_KEY = "FORM_BUILDER_V2";
-
   const $ = (s) => document.querySelector(s);
   const el = (tag, attrs = {}, kids = []) => {
     const n = document.createElement(tag);
@@ -142,55 +181,83 @@
 
   function defaultState(){ return { sections: [] }; }
 
-  // option.followUp: "none" | "text" | "subcheckbox"
-  // option.subOptions: [{id,text}]
-  function normalizeState(parsed){
-    parsed.sections.forEach(sec => {
+  function smartDefaultFollowUp(optionText) {
+    const t = (optionText || "").trim().toLowerCase();
+    if (!t) return "none";
+    if (t.includes("other")) return "text"; // Others -> text box
+    return "none"; // yes/no stays none unless admin changes it
+  }
+
+  async function apiLoad() {
+    const r = await fetch("/api/form", { cache: "no-store" });
+    const data = await r.json();
+    if (!data || !Array.isArray(data.sections)) return defaultState();
+    return normalizeState(data);
+  }
+
+  async function getAdminToken() {
+    let t = sessionStorage.getItem("ADMIN_TOKEN");
+    if (!t) {
+      t = prompt("Enter admin password:");
+      if (t) sessionStorage.setItem("ADMIN_TOKEN", t);
+    }
+    return t || "";
+  }
+
+  async function apiSave(state) {
+    const token = await getAdminToken();
+    if (!token) throw new Error("Admin password required");
+
+    const r = await fetch("/api/form", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-admin-token": token
+      },
+      body: JSON.stringify(state)
+    });
+
+    const data = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(data.message || "Save failed");
+    return data;
+  }
+
+  function normalizeState(parsed) {
+    const st = parsed && typeof parsed === "object" ? parsed : defaultState();
+    st.sections = Array.isArray(st.sections) ? st.sections : [];
+
+    st.sections.forEach(sec => {
       sec.id ||= uid();
       sec.title ||= "";
-      sec.questions ||= [];
+      sec.questions = Array.isArray(sec.questions) ? sec.questions : [];
+
       sec.questions.forEach(q => {
         q.id ||= uid();
         q.type ||= "text";
         q.label ||= "";
         q.required = !!q.required;
-        q.options ||= [];
+        q.options = Array.isArray(q.options) ? q.options : [];
         q.options.forEach(o => {
           o.id ||= uid();
           o.text ||= "";
-          o.followUp ||= "none";
-          o.subOptions ||= [];
-          o.subOptions.forEach(so => { so.id ||= uid(); so.text ||= ""; });
+          o.followUp = o.followUp || "none"; // none|text|subcheckbox
+          o.subOptions = Array.isArray(o.subOptions) ? o.subOptions : [];
+          o.subOptions.forEach(so => { so.text ||= ""; });
         });
       });
     });
+
+    return st;
   }
 
-  function loadState(){
-    try{
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return defaultState();
-      const parsed = JSON.parse(raw);
-      if(!parsed || !Array.isArray(parsed.sections)) return defaultState();
-      normalizeState(parsed);
-      return parsed;
-    }catch{
-      return defaultState();
-    }
-  }
-
-  let state = loadState();
-
-  function saveState(){
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  }
+  let state = defaultState();
 
   function render(){
     const wrap = $("#sectionsWrap");
     wrap.innerHTML = "";
 
     if(state.sections.length === 0){
-      wrap.appendChild(el("div", { class:"empty muted" }, ["No sections yet. Add a section above."]));
+      wrap.appendChild(el("div", { class:"muted" }, ["No sections yet. Add a section above."]));
       return;
     }
 
@@ -309,15 +376,12 @@
               const inp = document.getElementById(`opt_${q.id}`);
               const val = (inp.value || "").trim();
               if(!val) return;
-
-              const isOthers = val.toLowerCase() === "others" || val.toLowerCase() === "other";
               q.options.push({
                 id: uid(),
                 text: val,
-                followUp: isOthers ? "text" : "none",
+                followUp: smartDefaultFollowUp(val),
                 subOptions: []
               });
-
               inp.value = "";
               render();
             }
@@ -326,11 +390,95 @@
       ]));
 
       if(!q.options.length){
-        body.appendChild(el("p", { class:"muted", style:"margin:10px 0 0;" }, ["No options yet."]));
+        body.appendChild(el("div", { class:"muted" }, ["No options yet."]));
       } else {
-        // options list with follow-up config
         q.options.forEach((o, oi) => {
-          body.appendChild(renderOptionRow(q, secIndex, qIndex, o, oi));
+          const optWrap = el("div", { class:"opt-row" });
+
+          // option text input
+          const textInp = el("input", {
+            type:"text",
+            value: o.text,
+            oninput:(e)=>{ o.text = e.target.value; }
+          });
+
+          // follow-up selector
+          const followSel = el("select", {});
+          followSel.appendChild(el("option", { value:"none" }, ["No follow-up"]));
+          followSel.appendChild(el("option", { value:"text" }, ["Text box"]));
+          followSel.appendChild(el("option", { value:"subcheckbox" }, ["Sub-checkboxes"]));
+          followSel.value = o.followUp || "none";
+          followSel.addEventListener("change", () => {
+            o.followUp = followSel.value;
+            if (o.followUp !== "subcheckbox") {
+              // keep suboptions but they won't show in user unless selected
+            }
+            render();
+          });
+
+          const tools = el("div", { class:"opt-tools" }, [
+            followSel,
+            el("button", { class:"smallbtn ghost", onclick: () => moveOption(secIndex, qIndex, oi, -1) }, ["↑"]),
+            el("button", { class:"smallbtn ghost", onclick: () => moveOption(secIndex, qIndex, oi, +1) }, ["↓"]),
+            el("button", { class:"smallbtn danger", onclick: () => { q.options.splice(oi, 1); render(); } }, ["Remove"])
+          ]);
+
+          optWrap.appendChild(textInp);
+          optWrap.appendChild(tools);
+
+          const container = el("div", {});
+          container.appendChild(optWrap);
+
+          // subcheckbox editor (only when selected)
+          if ((o.followUp || "none") === "subcheckbox") {
+            const subBox = el("div", { class:"subbox" });
+
+            subBox.appendChild(el("div", { class:"muted" }, ["Sub-checkbox options (user will tick these):"]));
+
+            // add suboption row
+            const subAddId = `subadd_${q.id}_${o.id}`;
+            subBox.appendChild(el("div", { class:"row", style:"margin-top:10px;" }, [
+              el("div", {}, [
+                el("label", {}, ["Add Sub-option"]),
+                el("input", { id: subAddId, type:"text", placeholder:"e.g., Admin / HR / Finance" })
+              ]),
+              el("div", { style:"flex:0.6; min-width:190px;" }, [
+                el("label", {}, ["&nbsp;"]),
+                el("button", {
+                  class:"primary",
+                  onclick: () => {
+                    const inp = document.getElementById(subAddId);
+                    const v = (inp.value || "").trim();
+                    if (!v) return;
+                    o.subOptions = Array.isArray(o.subOptions) ? o.subOptions : [];
+                    o.subOptions.push({ text: v });
+                    inp.value = "";
+                    render();
+                  }
+                }, ["+ Add"])
+              ])
+            ]));
+
+            // list suboptions
+            if (!o.subOptions || !o.subOptions.length) {
+              subBox.appendChild(el("div", { class:"muted", style:"margin-top:8px;" }, ["No sub-options yet."]));
+            } else {
+              o.subOptions.forEach((so, si) => {
+                subBox.appendChild(el("div", { class:"subopt-row" }, [
+                  el("input", {
+                    type:"text",
+                    value: so.text,
+                    oninput:(e)=>{ so.text = e.target.value; }
+                  }),
+                  el("button", { class:"smallbtn danger", onclick: () => { o.subOptions.splice(si, 1); render(); } }, ["Remove"])
+                ]));
+              });
+            }
+
+            container.appendChild(subBox);
+          }
+
+          body.appendChild(container);
         });
       }
     }
@@ -338,100 +486,6 @@
     box.appendChild(top);
     box.appendChild(body);
     return box;
-  }
-
-  function renderOptionRow(q, secIndex, qIndex, o, oi){
-    const row = el("div", { class:"opt-row" });
-
-    // option text input
-    const textInput = el("input", {
-      type:"text",
-      value: o.text,
-      oninput: (e) => {
-        o.text = e.target.value;
-
-        // auto-enable text follow-up if becomes Others/Other
-        const v = (o.text || "").trim().toLowerCase();
-        if (v === "others" || v === "other") o.followUp = "text";
-
-        render();
-      }
-    });
-
-    // follow-up selector
-    const followSelect = el("select", {
-      onchange: (e) => {
-        o.followUp = e.target.value;
-        if (o.followUp !== "subcheckbox") o.subOptions = [];
-        render();
-      }
-    });
-    followSelect.appendChild(el("option", { value:"none" }, ["No follow-up"]));
-    followSelect.appendChild(el("option", { value:"text" }, ["Show text box"]));
-    followSelect.appendChild(el("option", { value:"subcheckbox" }, ["Show sub-checkboxes"]));
-    followSelect.value = o.followUp || "none";
-
-    const controls = el("div", { class:"opt-controls" }, [
-      el("div", {}, [
-        el("label", {}, ["Follow-up (when user selects this option)"]),
-        followSelect
-      ])
-    ]);
-
-    // subcheckbox editor
-    if ((o.followUp || "none") === "subcheckbox") {
-      const subWrap = el("div", { class:"subopts" }, [
-        el("div", { class:"muted" }, ["Sub-checkboxes for this option:"])
-      ]);
-
-      const addRowId = `subadd_${o.id}`;
-      subWrap.appendChild(el("div", { class:"subopt-row" }, [
-        el("input", { type:"text", placeholder:"Add sub-option", id: addRowId }),
-        el("button", {
-          class:"smallbtn primary",
-          onclick: () => {
-            const inp = document.getElementById(addRowId);
-            const v = (inp.value || "").trim();
-            if (!v) return;
-            o.subOptions = o.subOptions || [];
-            o.subOptions.push({ id: uid(), text: v });
-            inp.value = "";
-            render();
-          }
-        }, ["+ Add"])
-      ]));
-
-      if (!o.subOptions?.length) {
-        subWrap.appendChild(el("div", { class:"muted", style:"margin-top:8px;" }, ["No sub-options yet."]));
-      } else {
-        o.subOptions.forEach((so, si) => {
-          subWrap.appendChild(el("div", { class:"subopt-row" }, [
-            el("input", {
-              type:"text",
-              value: so.text,
-              oninput: (e) => { so.text = e.target.value; }
-            }),
-            el("button", {
-              class:"smallbtn danger",
-              onclick: () => { o.subOptions.splice(si, 1); render(); }
-            }, ["Remove"])
-          ]));
-        });
-      }
-
-      controls.appendChild(subWrap);
-    }
-
-    const actions = el("div", { class:"opt-actions" }, [
-      el("button", { class:"smallbtn ghost", onclick: () => moveOption(secIndex, qIndex, oi, -1) }, ["↑"]),
-      el("button", { class:"smallbtn ghost", onclick: () => moveOption(secIndex, qIndex, oi, +1) }, ["↓"]),
-      el("button", { class:"smallbtn danger", onclick: () => { q.options.splice(oi, 1); render(); } }, ["Remove"])
-    ]);
-
-    row.appendChild(textInput);
-    row.appendChild(controls);
-    row.appendChild(actions);
-    return row;
   }
 
   // Section actions
@@ -481,20 +535,40 @@
   $("#addSectionBtn").addEventListener("click", addSection);
   $("#sectionName").addEventListener("keydown", (e)=>{ if(e.key==="Enter") addSection(); });
 
-  $("#btnSave").addEventListener("click", ()=>{
-    saveState();
-    alert("Saved! User page updated.");
+  $("#btnLoad").addEventListener("click", async ()=> {
+    try {
+      state = await apiLoad();
+      render();
+      alert("Loaded Live form!");
+    } catch {
+      alert("Load failed. Check deployment / API.");
+    }
   });
 
-  $("#btnReset").addEventListener("click", ()=>{
-    if(!confirm("Reset everything?")) return;
+  $("#btnSave").addEventListener("click", async ()=> {
+    try {
+      await apiSave(state);
+      alert("Saved Live! Everyone will see these questions.");
+    } catch (e) {
+      alert(e?.message || "Save failed");
+    }
+  });
+
+  $("#btnReset").addEventListener("click", ()=> {
+    if(!confirm("Reset builder? (This clears your current builder state. It will NOT affect live until you Save Live)")) return;
     state = defaultState();
-    saveState();
     render();
   });
 
-  // init
-  render();
+  // init: load live on open
+  (async function init(){
+    try {
+      state = await apiLoad();
+    } catch {
+      state = defaultState();
+    }
+    render();
+  })();
 </script>
 </body>
 </html>

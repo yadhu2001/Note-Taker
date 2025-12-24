@@ -108,8 +108,6 @@
   <div id="toast" class="toast"></div>
 
 <script>
-  const STORAGE_KEY = "FORM_BUILDER_V2";
-
   const $ = (s) => document.querySelector(s);
   const el = (tag, attrs = {}, kids = []) => {
     const n = document.createElement(tag);
@@ -131,19 +129,19 @@
     window.__toastTimer = setTimeout(() => { t.style.display = "none"; }, 1600);
   }
 
-  function loadState() {
+  async function loadState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return { sections: [] };
-      const parsed = JSON.parse(raw);
-      if (!parsed || !Array.isArray(parsed.sections)) return { sections: [] };
-      return parsed;
+      const r = await fetch("/api/form", { cache: "no-store" });
+      if (!r.ok) return { sections: [] };
+      const data = await r.json();
+      if (!data || !Array.isArray(data.sections)) return { sections: [] };
+      return data;
     } catch {
       return { sections: [] };
     }
   }
 
-  let state = loadState();
+  let state = { sections: [] };
 
   function fieldName(q) { return "q_" + (q.id || Math.random().toString(16).slice(2)); }
   function optFollowId(q, optId) { return `${fieldName(q)}__f_${optId}`; }
@@ -183,8 +181,9 @@
     return null;
   }
 
-  function renderForm() {
-    state = loadState();
+  async function renderForm() {
+    state = await loadState();
+
     const wrap = $("#formWrap");
     wrap.innerHTML = "";
 
@@ -204,7 +203,6 @@
 
         const labelText = (q.label || "Untitled Question") + (q.required ? " *" : "");
         qNode.appendChild(el("label", { class:"q", for:name }, [labelText]));
-
         qNode.appendChild(el("div", { class:"error", id: name + "_err", style:"display:none;" }, ["This field is required."]));
 
         if (q.type === "text") {
@@ -409,12 +407,11 @@
         lines.push(`${item.question}: ${ansText}`);
       });
 
-      lines.push(""); // blank line between sections
+      lines.push("");
     }
     return lines.join("\n");
   }
 
-  // ✅ CLEAN PREVIEW + store last preview for copy
   let lastPreviewAnswers = null;
 
   function showPreview(answers) {
@@ -472,9 +469,7 @@
   }
 
   function resetAll() {
-    // This resets only the user's answers (not admin template in localStorage)
-    $("#formWrap")?.reset?.(); // may not clear dynamic followups reliably
-    // safest: reload the page so everything clears & starts fresh
+    // Clears answers (not template) and starts fresh
     location.reload();
   }
 
@@ -486,7 +481,6 @@
       await navigator.clipboard.writeText(text);
       toast("Copied!");
     } catch {
-      // fallback
       const ta = document.createElement("textarea");
       ta.value = text;
       ta.style.position = "fixed";
@@ -500,7 +494,6 @@
   }
 
   $("#submitBtn").addEventListener("click", () => {
-    state = loadState();
     const res = validateAndCollect();
     if (res.ok) showPreview(res.answers);
   });
@@ -512,13 +505,7 @@
 
   $("#copyBtn").addEventListener("click", copyPreview);
 
-  window.addEventListener("storage", (e) => {
-    if (e.key === STORAGE_KEY) {
-      renderForm();
-      backToEdit();
-    }
-  });
-
+  // init
   renderForm();
 </script>
 </body>
