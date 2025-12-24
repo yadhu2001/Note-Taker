@@ -60,7 +60,6 @@ function normalizeState(state) {
 }
 
 export default async function handler(req, res) {
-  // allow same-origin calls from your pages
   res.setHeader("Cache-Control", "no-store");
 
   if (req.method === "GET") {
@@ -77,11 +76,7 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    const adminToken = req.headers["x-admin-token"];
-    if (!process.env.ADMIN_TOKEN || adminToken !== process.env.ADMIN_TOKEN) {
-      return sendJson(res, 401, { ok: false, message: "Unauthorized" });
-    }
-
+    // ✅ PASSWORD REMOVED — anyone can save
     const body = await readJsonBody(req);
     if (!body) return sendJson(res, 400, { ok: false, message: "Invalid JSON" });
 
