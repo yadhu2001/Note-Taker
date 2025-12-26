@@ -162,18 +162,21 @@
     return wrap;
   }
 
+  // ✅ UPDATED: show * if required
   function renderFollowUpAreaForDropdown(q, selectedOpt) {
     const follow = el("div", { class:"follow" });
     if (!selectedOpt || !selectedOpt.followUp || selectedOpt.followUp === "none") return null;
 
     if (selectedOpt.followUp === "text") {
-      follow.appendChild(el("label", { class:"q" }, ["Please specify:"]));
+      const star = selectedOpt.followRequired ? " *" : "";
+      follow.appendChild(el("label", { class:"q" }, ["Please specify:" + star]));
       follow.appendChild(el("input", { type:"text", id: optFollowId(q, selectedOpt.id), placeholder:"Type here..." }));
       return follow;
     }
 
     if (selectedOpt.followUp === "subcheckbox") {
-      follow.appendChild(el("div", { class:"muted" }, ["Select all that apply:"]));
+      const star = selectedOpt.subRequired ? " *" : "";
+      follow.appendChild(el("div", { class:"muted" }, ["Select all that apply:" + star]));
       follow.appendChild(renderSubCheckboxes(q, selectedOpt));
       return follow;
     }
@@ -204,6 +207,9 @@
         const labelText = (q.label || "Untitled Question") + (q.required ? " *" : "");
         qNode.appendChild(el("label", { class:"q", for:name }, [labelText]));
         qNode.appendChild(el("div", { class:"error", id: name + "_err", style:"display:none;" }, ["This field is required."]));
+
+        // ✅ NEW error container for follow-up required
+        qNode.appendChild(el("div", { class:"error", id: name + "_follow_err", style:"display:none;" }, ["Please complete required follow-up fields."]));
 
         if (q.type === "text") {
           qNode.appendChild(el("input", { type:"text", id:name, name:name }));
@@ -242,14 +248,16 @@
               if (!checkbox.checked) return;
 
               if (o.followUp === "text") {
+                const star = o.followRequired ? " *" : "";
                 const follow = el("div", { class:"follow" }, [
-                  el("label", { class:"q" }, ["Please specify:"]),
+                  el("label", { class:"q" }, ["Please specify:" + star]),
                   el("input", { type:"text", id: optFollowId(q, o.id), placeholder:"Type here..." })
                 ]);
                 followMount.appendChild(follow);
               } else if (o.followUp === "subcheckbox") {
+                const star = o.subRequired ? " *" : "";
                 const follow = el("div", { class:"follow" }, [
-                  el("div", { class:"muted" }, ["Select all that apply:"]),
+                  el("div", { class:"muted" }, ["Select all that apply:" + star]),
                   renderSubCheckboxes(q, o)
                 ]);
                 followMount.appendChild(follow);
@@ -283,12 +291,14 @@
     return selected;
   }
 
+  // ✅ UPDATED: validates followRequired + subRequired
   function validateAndCollect() {
     const errors = [];
+    const followErrors = [];
     const answers = [];
 
     document.querySelectorAll(".error").forEach(d => {
-      if (d.id.endsWith("_err")) d.style.display = "none";
+      if (d.id.endsWith("_err") || d.id.endsWith("_follow_err")) d.style.display = "none";
     });
     $("#globalError").style.display = "none";
 
@@ -315,11 +325,16 @@
             const f = document.getElementById(optFollowId(q, opt.id));
             const v = (f?.value || "").trim();
             followDetails.push({ type:"text", value: v });
+
+            if (opt.followRequired && !v) followErrors.push(name);
           }
+
           if (opt && opt.followUp === "subcheckbox") {
             const subName = optSubName(q, opt.id);
             const v = collectSubCheckboxValues(subName);
             followDetails.push({ type:"subcheckbox", value: v });
+
+            if (opt.subRequired && (!v || v.length === 0)) followErrors.push(name);
           }
         }
 
@@ -338,11 +353,16 @@
               const f = document.getElementById(optFollowId(q, opt.id));
               const v = (f?.value || "").trim();
               followDetails.push({ type:"text", value: v });
+
+              if (opt.followRequired && !v) followErrors.push(name);
             }
+
             if (opt.followUp === "subcheckbox") {
               const subName = optSubName(q, opt.id);
               const v = collectSubCheckboxValues(subName);
               followDetails.push({ type:"subcheckbox", value: v });
+
+              if (opt.subRequired && (!v || v.length === 0)) followErrors.push(name);
             }
           });
         }
@@ -357,15 +377,21 @@
       }
     }
 
-    if (errors.length) {
+    if (errors.length || followErrors.length) {
       errors.forEach(name => {
         const err = document.getElementById(name + "_err");
         if (err) err.style.display = "";
       });
-      $("#globalError").textContent = "Please fill all required fields marked with *.";
+
+      followErrors.forEach(name => {
+        const err = document.getElementById(name + "_follow_err");
+        if (err) err.style.display = "";
+      });
+
+      $("#globalError").textContent = "Please fill all required fields and required follow-ups marked with *.";
       $("#globalError").style.display = "";
 
-      const first = document.getElementById(errors[0]);
+      const first = document.getElementById(errors[0] || followErrors[0]);
       first?.scrollIntoView({ behavior:"smooth", block:"center" });
       first?.focus?.();
       return { ok:false };
@@ -469,7 +495,6 @@
   }
 
   function resetAll() {
-    // Clears answers (not template) and starts fresh
     location.reload();
   }
 
@@ -505,7 +530,6 @@
 
   $("#copyBtn").addEventListener("click", copyPreview);
 
-  // init
   renderForm();
 </script>
 </body>

@@ -1,8 +1,3 @@
-// =========================
-// /api/form.js  (FULL UPDATED)
-// - NO password (anyone can save)
-// - Stores new flags: followRequired, subRequired
-// =========================
 import { put, head } from "@vercel/blob";
 
 const FORM_PATH = "form/form.json";
@@ -47,8 +42,11 @@ function normalizeState(state) {
                   id: String(o.id || ""),
                   text: String(o.text || ""),
                   followUp: o.followUp ? String(o.followUp) : "none",
-                  followRequired: !!o.followRequired, // NEW
-                  subRequired: !!o.subRequired,       // NEW
+
+                  // ✅ NEW: keep required flags
+                  followRequired: !!o.followRequired, // only meaningful if followUp === "text"
+                  subRequired: !!o.subRequired,       // only meaningful if followUp === "subcheckbox"
+
                   subOptions: Array.isArray(o.subOptions)
                     ? o.subOptions.map((so) => ({ text: String(so.text || "") }))
                     : []
@@ -78,7 +76,6 @@ export default async function handler(req, res) {
   }
 
   if (req.method === "POST") {
-    // NO PASSWORD — anyone can save
     const body = await readJsonBody(req);
     if (!body) return sendJson(res, 400, { ok: false, message: "Invalid JSON" });
 
