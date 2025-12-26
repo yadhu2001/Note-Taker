@@ -1,3 +1,8 @@
+// =========================
+// /api/form.js  (FULL UPDATED)
+// - NO password (anyone can save)
+// - Stores new flags: followRequired, subRequired
+// =========================
 import { put, head } from "@vercel/blob";
 
 const FORM_PATH = "form/form.json";
@@ -9,10 +14,8 @@ function sendJson(res, status, data) {
 }
 
 async function readJsonBody(req) {
-  // Vercel often pre-parses JSON into req.body
   if (req.body && typeof req.body === "object") return req.body;
 
-  // fallback: read raw
   const chunks = [];
   for await (const chunk of req) chunks.push(chunk);
   const raw = Buffer.concat(chunks).toString("utf8");
@@ -26,11 +29,9 @@ async function readJsonBody(req) {
 }
 
 function normalizeState(state) {
-  // minimal validation/normalization
   if (!state || typeof state !== "object") return { sections: [] };
   if (!Array.isArray(state.sections)) return { sections: [] };
 
-  // keep only expected shape (avoid junk)
   const clean = {
     sections: state.sections.map((s) => ({
       id: String(s.id || ""),
@@ -46,6 +47,8 @@ function normalizeState(state) {
                   id: String(o.id || ""),
                   text: String(o.text || ""),
                   followUp: o.followUp ? String(o.followUp) : "none",
+                  followRequired: !!o.followRequired, // NEW
+                  subRequired: !!o.subRequired,       // NEW
                   subOptions: Array.isArray(o.subOptions)
                     ? o.subOptions.map((so) => ({ text: String(so.text || "") }))
                     : []
@@ -70,13 +73,12 @@ export default async function handler(req, res) {
       const data = await r.json();
       return sendJson(res, 200, normalizeState(data));
     } catch {
-      // if blob doesn't exist yet
       return sendJson(res, 200, { sections: [] });
     }
   }
 
   if (req.method === "POST") {
-    // ✅ PASSWORD REMOVED — anyone can save
+    // NO PASSWORD — anyone can save
     const body = await readJsonBody(req);
     if (!body) return sendJson(res, 400, { ok: false, message: "Invalid JSON" });
 
@@ -94,6 +96,3 @@ export default async function handler(req, res) {
 
   return sendJson(res, 405, { ok: false, message: "Method Not Allowed" });
 }
-
-
-// Thank You

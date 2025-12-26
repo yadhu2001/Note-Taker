@@ -1,3 +1,12 @@
+<!-- =========================
+  admin.html  (FULL UPDATED)
+  - NO Load Live button
+  - NO Reset Builder button
+  - Adds mandatory controls:
+      1) Question Required? (already)
+      2) If option followUp = text  -> Follow-up Required?
+      3) If option followUp = subcheckbox -> Sub-options Required? (min 1)
+========================= -->
 <!doctype html>
 <html lang="en">
 <head>
@@ -37,23 +46,15 @@
     button.danger { background:#ef4444; border-color:#ef4444; color:#fff; }
     button.ghost { background: transparent; }
 
-    /* ✅ Fix: buttons inside dark header should be readable */
+    /* buttons inside dark header should be readable */
     header button.ghost, header a.btn.ghost, header a.btn, header button {
       color: #fff;
       border-color: rgba(255,255,255,.55);
       background: transparent;
     }
-    header button.primary {
-      background:#2563eb;
-      border-color:#2563eb;
-    }
-    header button.danger {
-      background:#ef4444;
-      border-color:#ef4444;
-    }
-    header a.btn:hover, header button.ghost:hover {
-      background: rgba(255,255,255,.12);
-    }
+    header button.primary { background:#2563eb; border-color:#2563eb; }
+    header button.danger { background:#ef4444; border-color:#ef4444; }
+    header a.btn:hover, header button.ghost:hover { background: rgba(255,255,255,.12); }
 
     main { padding: 18px 20px; max-width: 1100px; margin: 0 auto; }
 
@@ -148,9 +149,7 @@
     <h1>Admin Builder</h1>
     <div class="right">
       <a class="btn" href="/user.html" target="_blank" rel="noreferrer">Open User Page</a>
-      <!-- <button id="btnLoad" class="ghost">Load Live</button> -->
       <button id="btnSave" class="primary">Save Live</button>
-      <!-- <button id="btnReset" class="danger">Reset Builder</button> -->
     </div>
   </header>
 
@@ -212,7 +211,6 @@
     return normalizeState(data);
   }
 
-  // ✅ NO PASSWORD
   async function apiSave(state) {
     const r = await fetch("/api/form", {
       method: "POST",
@@ -244,6 +242,9 @@
           o.id ||= uid();
           o.text ||= "";
           o.followUp = o.followUp || "none";
+          // NEW fields
+          o.followRequired = !!o.followRequired; // for followUp=text
+          o.subRequired = !!o.subRequired;       // for followUp=subcheckbox
           o.subOptions = Array.isArray(o.subOptions) ? o.subOptions : [];
           o.subOptions.forEach(so => { so.text ||= ""; });
         });
@@ -382,6 +383,8 @@
                 id: uid(),
                 text: val,
                 followUp: smartDefaultFollowUp(val),
+                followRequired: false,
+                subRequired: false,
                 subOptions: []
               });
               inp.value = "";
@@ -413,8 +416,27 @@
             render();
           });
 
+          // NEW: follow-up required selectors
+          const followReqSel = el("select", {});
+          followReqSel.appendChild(el("option", { value:"false" }, ["Follow-up Optional"]));
+          followReqSel.appendChild(el("option", { value:"true" }, ["Follow-up Required"]));
+          followReqSel.value = String(!!o.followRequired);
+          followReqSel.addEventListener("change", () => {
+            o.followRequired = (followReqSel.value === "true");
+          });
+
+          const subReqSel = el("select", {});
+          subReqSel.appendChild(el("option", { value:"false" }, ["Sub Optional"]));
+          subReqSel.appendChild(el("option", { value:"true" }, ["Sub Required"]));
+          subReqSel.value = String(!!o.subRequired);
+          subReqSel.addEventListener("change", () => {
+            o.subRequired = (subReqSel.value === "true");
+          });
+
           const tools = el("div", { class:"opt-tools" }, [
             followSel,
+            ...(o.followUp === "text" ? [followReqSel] : []),
+            ...(o.followUp === "subcheckbox" ? [subReqSel] : []),
             el("button", { class:"smallbtn", onclick: () => moveOption(secIndex, qIndex, oi, -1) }, ["↑"]),
             el("button", { class:"smallbtn", onclick: () => moveOption(secIndex, qIndex, oi, +1) }, ["↓"]),
             el("button", { class:"smallbtn danger", onclick: () => { q.options.splice(oi, 1); render(); } }, ["Remove"])
@@ -525,8 +547,6 @@
   $("#addSectionBtn").addEventListener("click", addSection);
   $("#sectionName").addEventListener("keydown", (e)=>{ if(e.key==="Enter") addSection(); });
 
-
-
   $("#btnSave").addEventListener("click", async ()=> {
     try {
       await apiSave(state);
@@ -535,8 +555,6 @@
       alert(e?.message || "Save failed");
     }
   });
-
-
 
   (async function init(){
     try { state = await apiLoad(); }
